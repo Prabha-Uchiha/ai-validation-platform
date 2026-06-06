@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: validation-postgres
+
+    environment:
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform
+      POSTGRES_DB: validation_platform
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: validation-redis
+
+    ports:
+      - "6379:6379"
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: validation-jaeger
+
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: validation-otel
+
+    command: ["--config=/etc/otelcol/config.yaml"]
+
+    volumes:
+      - ./infrastructure/monitoring/otel-config.yaml:/etc/otelcol/config.yaml
+
+    ports:
+      - "4318:4318"
+
+volumes:
+  postgres_data:
